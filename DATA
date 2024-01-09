@@ -1,0 +1,41 @@
+from flask import Flask, request, render_template
+import pandas as pd
+import joblib
+
+# Declare a Flask app
+app = Flask(__name__)
+
+# Main function here
+@app.route('/', methods=['GET', 'POST'])
+def main():
+    # If a form is submitted
+    if request.method == "POST":
+        
+        # Unpickle classifier
+        nb = joblib.load("nb.pkl")
+        
+        # Unpickle classifier
+        knn = joblib.load("knn.pkl")
+
+        # Get values through input bars
+        sepal_length = request.form.get("tahuns")
+        sepal_weight = request.form.get("sepal_weight")
+        petal_length = request.form.get("petal_length")
+        petal_weight = request.form.get("petal_weight")
+
+        # Put inputs to dataframe
+        X = pd.DataFrame([[sepal_length, sepal_weight, petal_length, petal_weight]], columns = ["SepalLengthCm", "SepalWidthCm", "PetalLengthCm", "PetalWidthCm"])
+        
+        # Get predictions
+        pred_nb = nb.predict(X)[0]
+        pred_knn = knn.predict(X)[0]
+        
+    else:
+        pred_nb = ""
+        pred_knn = ""
+        
+    return render_template("website.html", output = [pred_nb, pred_knn])
+
+# Running the app
+if __name__ == '__main__':
+    app.run(debug = True)
